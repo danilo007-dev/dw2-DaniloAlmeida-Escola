@@ -1,11 +1,3 @@
-# Projeto Escola
+# Mini Sistema Escolar
 
-Este é o repositório inicial do projeto de desenvolvimento web para a disciplina DW2.
-
-## Estrutura Inicial
-- index.html
-- style.css
-- script.js
-
-## Autor
-Danilo Almeida
+Projeto web completo com FastAPI, SQLite, HTML, CSS e JS puro.
