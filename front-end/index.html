@@ -7,7 +7,104 @@
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <h1>Olá, mundo!</h1>
+    <header style="background:#2563EB;color:#fff;padding:1.5rem 0;font-family:'Roboto', 'Inter', sans-serif;">
+        <div style="display:flex;align-items:center;justify-content:space-between;max-width:1200px;margin:0 auto;">
+            <h1 style="margin:0;font-size:2rem;">Gestão Escolar</h1>
+            <div>
+                <input type="search" id="busca-aluno" aria-label="Buscar aluno" placeholder="Buscar aluno por nome ou email" style="padding:0.5rem 1rem;border-radius:4px;border:1px solid #ccc;width:300px;max-width:90%;">
+            </div>
+        </div>
+    </header>
+    <main style="display:flex;gap:2rem;max-width:1200px;margin:2rem auto;font-family:'Roboto', 'Inter', sans-serif;">
+        <aside style="flex:1;min-width:220px;background:#F1F5F9;padding:1.5rem;border-radius:8px;">
+            <h2 style="color:#2563EB;font-size:1.2rem;">Filtros & Estatísticas</h2>
+            <div id="filtros" style="margin-bottom:2rem;">
+                <label for="filtro-turma">Turma:</label>
+                <select id="filtro-turma" aria-label="Filtrar por turma">
+                    <option value="">Todas</option>
+                    <!-- Turmas serão preenchidas via JS -->
+                </select>
+                <br><br>
+                <label for="filtro-status">Status:</label>
+                <select id="filtro-status" aria-label="Filtrar por status">
+                    <option value="">Todos</option>
+                    <option value="ativo">Ativo</option>
+                    <option value="inativo">Inativo</option>
+                </select>
+                <br><br>
+                <label for="filtro-texto">Texto:</label>
+                <input type="text" id="filtro-texto" aria-label="Filtrar por texto" placeholder="Nome ou email">
+            </div>
+            <div id="estatisticas" style="margin-top:2rem;">
+                <strong>Total de alunos:</strong> <span id="total-alunos">0</span><br>
+                <strong>Ativos:</strong> <span id="total-ativos">0</span><br>
+                <strong>Por turma:</strong>
+                <ul id="alunos-por-turma" style="padding-left:1.2em;margin:0;">
+                    <!-- Estatísticas por turma via JS -->
+                </ul>
+            </div>
+        </aside>
+        <section style="flex:3;background:#fff;padding:1.5rem;border-radius:8px;box-shadow:0 2px 8px #0001;">
+            <nav style="display:flex;gap:1rem;margin-bottom:1.5rem;">
+                <button id="btn-alunos" style="background:#2563EB;color:#fff;border:none;padding:0.5rem 1.2rem;border-radius:4px;cursor:pointer;">Alunos</button>
+                <button id="btn-turmas" style="background:#10B981;color:#fff;border:none;padding:0.5rem 1.2rem;border-radius:4px;cursor:pointer;">Turmas</button>
+                <button id="btn-relatorios" style="background:#F97316;color:#fff;border:none;padding:0.5rem 1.2rem;border-radius:4px;cursor:pointer;">Relatórios</button>
+            </nav>
+            <div id="listagem">
+                <table id="tabela-alunos" style="width:100%;border-collapse:collapse;" aria-label="Tabela de alunos">
+                    <caption style="text-align:left;font-weight:bold;color:#2563EB;">Alunos</caption>
+                    <thead>
+                        <tr style="background:#F1F5F9;">
+                            <th>Nome</th>
+                            <th>Data Nasc.</th>
+                            <th>Email</th>
+                            <th>Status</th>
+                            <th>Turma</th>
+                            <th>Ações</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <!-- Linhas de alunos via JS -->
+                    </tbody>
+                </table>
+            </div>
+        </section>
+    </main>
+    <!-- Modais -->
+    <div id="modal-aluno" style="display:none;position:fixed;top:0;left:0;width:100vw;height:100vh;background:#0008;align-items:center;justify-content:center;z-index:10;">
+        <div style="background:#fff;padding:2rem;border-radius:8px;min-width:320px;max-width:90vw;">
+            <h2>Novo Aluno</h2>
+            <form id="form-aluno" aria-label="Formulário de Aluno">
+                <label for="nome">Nome*</label><br>
+                <input type="text" id="nome" name="nome" required minlength="3" maxlength="80" aria-required="true" aria-label="Nome do aluno"><br><br>
+                <label for="data_nascimento">Data de nascimento*</label><br>
+                <input type="date" id="data_nascimento" name="data_nascimento" required aria-required="true" aria-label="Data de nascimento"><br><br>
+                <label for="email">Email</label><br>
+                <input type="email" id="email" name="email" pattern="^[\w-.]+@([\w-]+\.)+[\w-]{2,4}$" aria-label="Email do aluno"><br><br>
+                <label for="status">Status*</label><br>
+                <select id="status" name="status" required aria-required="true" aria-label="Status do aluno">
+                    <option value="ativo">Ativo</option>
+                    <option value="inativo">Inativo</option>
+                </select><br><br>
+                <label for="turma_id">Turma</label><br>
+                <select id="turma_id" name="turma_id" aria-label="Turma do aluno">
+                    <option value="">Nenhuma</option>
+                    <!-- Turmas via JS -->
+                </select><br><br>
+                <button type="submit" style="background:#2563EB;color:#fff;border:none;padding:0.5rem 1.2rem;border-radius:4px;cursor:pointer;">Salvar</button>
+            </form>
+            <button id="fechar-modal-aluno" style="margin-top:1rem;">Fechar</button>
+        </div>
+    </div>
+    <div id="modal-matricula" style="display:none;position:fixed;top:0;left:0;width:100vw;height:100vh;background:#0008;align-items:center;justify-content:center;z-index:10;">
+        <div style="background:#fff;padding:2rem;border-radius:8px;min-width:320px;max-width:90vw;">
+            <h2>Nova Matrícula</h2>
+            <form id="form-matricula" aria-label="Formulário de Matrícula">
+                <!-- Campos do formulário -->
+            </form>
+            <button id="fechar-modal-matricula" style="margin-top:1rem;">Fechar</button>
+        </div>
+    </div>
     <script src="script.js"></script>
 </body>
 </html>
