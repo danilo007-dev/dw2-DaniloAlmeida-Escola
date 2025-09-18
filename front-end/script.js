@@ -102,6 +102,11 @@ document.addEventListener('DOMContentLoaded', function() {
         setupEventListeners();
         console.log('✅ Event listeners configurados');
         
+        // Configurar monitor do user-role
+        console.log('🔍 Configurando monitor do user-role...');
+        setupUserRoleMonitor();
+        console.log('✅ Monitor configurado');
+        
         // Mostrar tab inicial
         console.log('🏠 Mostrando dashboard...');
         showTab('dashboard');
@@ -179,14 +184,36 @@ document.addEventListener('DOMContentLoaded', function() {
     }
     
     function getRoleDisplay(cargo) {
+        // Converter para string se for um objeto
+        const cargoStr = typeof cargo === 'object' ? cargo.value || cargo : String(cargo);
+        
         const roles = {
             'diretor': 'Diretor(a)',
             'coordenador': 'Coordenador(a)',
             'secretario': 'Secretário(a)',
             'professor': 'Professor(a)'
         };
-        return roles[cargo] || cargo;
+        
+        return roles[cargoStr] || cargoStr;
     }
+    
+    // Debug function para forçar atualização do cargo
+    window.debugForceUpdateRole = function() {
+        console.log('🔧 [DEBUG] Forçando atualização do cargo...');
+        if (currentUser) {
+            console.log('👤 [DEBUG] currentUser:', currentUser);
+            const roleDisplay = getRoleDisplay(currentUser.cargo);
+            console.log('🔍 [DEBUG] roleDisplay:', roleDisplay);
+            
+            const userRoleElement = document.getElementById('user-role');
+            if (userRoleElement) {
+                userRoleElement.textContent = roleDisplay;
+                console.log('✅ [DEBUG] Cargo atualizado forçadamente para:', roleDisplay);
+            }
+        } else {
+            console.log('❌ [DEBUG] currentUser não está definido');
+        }
+    };
     
     // Debug function
     window.debugAlunosData = function() {
@@ -1026,6 +1053,55 @@ document.addEventListener('DOMContentLoaded', function() {
             'info': 'ℹ️'
         };
         return icons[type] || 'ℹ️';
+    }
+    
+    // Função para monitorar e corrigir mudanças no user-role
+    function setupUserRoleMonitor() {
+        const userRoleElement = document.getElementById('user-role');
+        if (!userRoleElement) return;
+        
+        console.log('🔍 [MONITOR] Configurando monitor para user-role');
+        
+        // MutationObserver para detectar mudanças no conteúdo
+        const observer = new MutationObserver((mutations) => {
+            mutations.forEach((mutation) => {
+                if (mutation.type === 'childList' || mutation.type === 'characterData') {
+                    const currentText = userRoleElement.textContent;
+                    console.log('🚨 [MONITOR] Mudança detectada no user-role:', currentText);
+                    
+                    // Se for "Secretário(a)" e temos dados do usuário, corrigir
+                    if (currentText === 'Secretário(a)' && currentUser && currentUser.cargo) {
+                        console.log('🛠️ [MONITOR] Corrigindo cargo incorreto');
+                        const correctRole = getRoleDisplay(currentUser.cargo);
+                        userRoleElement.textContent = correctRole;
+                        console.log('✅ [MONITOR] Cargo corrigido para:', correctRole);
+                    }
+                }
+            });
+        });
+        
+        // Observar mudanças no conteúdo
+        observer.observe(userRoleElement, {
+            childList: true,
+            subtree: true,
+            characterData: true
+        });
+        
+        console.log('✅ [MONITOR] Monitor ativo');
+        
+        // Também configurar um interval para verificação periódica
+        setInterval(() => {
+            if (userRoleElement && currentUser) {
+                const currentText = userRoleElement.textContent;
+                const expectedText = getRoleDisplay(currentUser.cargo);
+                
+                if (currentText !== expectedText) {
+                    console.log('🔄 [INTERVAL] Discrepância detectada. Atual:', currentText, 'Esperado:', expectedText);
+                    userRoleElement.textContent = expectedText;
+                    console.log('✅ [INTERVAL] Corrigido para:', expectedText);
+                }
+            }
+        }, 1000); // Verificar a cada 1 segundo
     }
     
     // Expor funções globais para uso em modals/forms

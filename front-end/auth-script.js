@@ -133,7 +133,7 @@ document.addEventListener('DOMContentLoaded', function() {
     }
     
     // Registro
-    async function realizarRegistro(nome, email, senha) {
+    async function realizarRegistro(nome, email, senha, cargo) {
         try {
             const response = await fetch(`${API_BASE_URL}/auth/register`, {
                 method: 'POST',
@@ -144,7 +144,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     nome: nome,
                     email: email,
                     senha: senha,
-                    cargo: "secretario"  // Padrão para novos usuários
+                    cargo: cargo  // Usar o cargo selecionado pelo usuário
                 })
             });
             
@@ -282,9 +282,10 @@ document.addEventListener('DOMContentLoaded', function() {
             const email = document.getElementById('email-register').value.trim();
             const senha = document.getElementById('senha-register').value;
             const confirmarSenha = document.getElementById('confirmar-senha').value;
+            const cargo = document.getElementById('cargo-register').value;
             
             // Validações
-            if (!nome || !email || !senha || !confirmarSenha) {
+            if (!nome || !email || !senha || !confirmarSenha || !cargo) {
                 mostrarToast('Preencha todos os campos!', 'error');
                 return;
             }
@@ -307,7 +308,7 @@ document.addEventListener('DOMContentLoaded', function() {
             mostrarLoading(btnSubmit, true);
             
             try {
-                await realizarRegistro(nome, email, senha);
+                await realizarRegistro(nome, email, senha, cargo);
             } catch (error) {
                 mostrarToast(error.message || 'Erro no cadastro', 'error');
             } finally {

@@ -43,6 +43,20 @@ class UsuarioResponse(UsuarioBase):
     
     class Config:
         from_attributes = True
+        
+    @classmethod
+    def from_orm(cls, obj):
+        """Converter ORM object para response, garantindo que enum seja string"""
+        cargo_value = obj.cargo.value if hasattr(obj.cargo, 'value') else str(obj.cargo)
+        return cls(
+            id=obj.id,
+            nome=obj.nome,
+            email=obj.email,
+            cargo=cargo_value,
+            ativo=obj.ativo,
+            data_criacao=obj.data_criacao,
+            ultimo_acesso=obj.ultimo_acesso
+        )
 
 class UsuarioUpdate(BaseModel):
     nome: Optional[str] = Field(None, min_length=3, max_length=100)

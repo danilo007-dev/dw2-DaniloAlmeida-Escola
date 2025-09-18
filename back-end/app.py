@@ -9,7 +9,7 @@ import uvicorn
 
 # Imports locais
 from database import get_database_session, init_database
-from models import Usuario, Aluno, Turma, HistoricoLogin
+from models import Usuario, Aluno, Turma, HistoricoLogin, CargoEnum
 from schemas import (
     UsuarioCreate, UsuarioLogin, UsuarioResponse, UsuarioUpdate,
     AlunoCreate, AlunoUpdate, AlunoResponse, AlunoListResponse,
@@ -126,7 +126,18 @@ async def login_user(
 @app.get("/auth/me", response_model=UsuarioResponse, tags=["Autenticação"])
 async def get_current_user_info(current_user: Usuario = Depends(get_current_user)):
     """Obter informações do usuário atual"""
-    return UsuarioResponse.from_orm(current_user)
+    # Criar response manualmente para garantir que está correto
+    response_data = {
+        "id": current_user.id,
+        "nome": current_user.nome,
+        "email": current_user.email,
+        "cargo": current_user.cargo.value,  # Garantir que é string
+        "ativo": current_user.ativo,
+        "data_criacao": current_user.data_criacao,
+        "ultimo_acesso": current_user.ultimo_acesso
+    }
+    
+    return UsuarioResponse(**response_data)
 
 # ================================
 # ROTAS DE USUÁRIOS
