@@ -346,8 +346,8 @@ class AlunoService:
         return db_aluno
     
     @staticmethod
-    def delete_aluno(db: Session, aluno_id: int) -> bool:
-        """Inativa aluno (soft delete)"""
+    def delete_aluno(db: Session, aluno_id: int) -> dict:
+        """Inativa aluno (soft delete) ou exclui permanentemente se já inativo"""
         db_aluno = db.query(Aluno).filter(Aluno.id == aluno_id).first()
         if not db_aluno:
             raise HTTPException(
@@ -355,9 +355,16 @@ class AlunoService:
                 detail="Aluno não encontrado"
             )
         
+        # Se o aluno já está inativo, exclui permanentemente
+        if db_aluno.status == StatusAlunoEnum.inativo:
+            db.delete(db_aluno)
+            db.commit()
+            return {"action": "deleted", "message": "Aluno excluído permanentemente"}
+        
+        # Se o aluno está ativo, apenas inativa (soft delete)
         db_aluno.status = StatusAlunoEnum.inativo
         db.commit()
-        return True
+        return {"action": "inactivated", "message": "Aluno inativado com sucesso"}
 
 class StatisticsService:
     @staticmethod

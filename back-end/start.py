@@ -13,7 +13,7 @@ def check_dependencies():
         import sqlalchemy
         import uvicorn
         import pydantic
-        import python_jose
+        import jose
         import passlib
         print("✅ Todas as dependências estão instaladas!")
         return True

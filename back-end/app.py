@@ -308,18 +308,12 @@ async def update_aluno(
 @app.delete("/alunos/{aluno_id}", response_model=MessageResponse, tags=["Alunos"])
 async def delete_aluno(
     aluno_id: int,
-    current_user: Usuario = Depends(require_admin_or_coordinator),
+    current_user: Usuario = Depends(get_current_user),
     db: Session = Depends(get_database_session)
 ):
-    """Inativar aluno"""
-    success = AlunoService.delete_aluno(db, aluno_id)
-    if success:
-        return MessageResponse(message="Aluno inativado com sucesso")
-    
-    raise HTTPException(
-        status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-        detail="Erro ao inativar aluno"
-    )
+    """Inativar ou excluir aluno permanentemente se já inativo"""
+    result = AlunoService.delete_aluno(db, aluno_id)
+    return MessageResponse(message=result["message"])
 
 # ================================
 # ROTAS DE ESTATÍSTICAS

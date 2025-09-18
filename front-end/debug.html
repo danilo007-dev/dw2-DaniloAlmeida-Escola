@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Debug Token</title>
+</head>
+<body>
+    <h1>Debug do Token de Autenticação</h1>
+    <div id="debug-info"></div>
+    
+    <script>
+        function debugToken() {
+            const debugDiv = document.getElementById('debug-info');
+            
+            // Verificar tokens salvos
+            const localToken = localStorage.getItem('token');
+            const sessionToken = sessionStorage.getItem('token');
+            const tokenType = localStorage.getItem('token_type') || sessionStorage.getItem('token_type');
+            
+            let html = '<h2>Tokens salvos:</h2>';
+            html += `<p><strong>localStorage token:</strong> ${localToken ? 'Existe' : 'Não existe'}</p>`;
+            html += `<p><strong>sessionStorage token:</strong> ${sessionToken ? 'Existe' : 'Não existe'}</p>`;
+            html += `<p><strong>Token type:</strong> ${tokenType}</p>`;
+            
+            if (localToken || sessionToken) {
+                const token = localToken || sessionToken;
+                html += `<p><strong>Token:</strong> ${token.substring(0, 20)}...</p>`;
+                
+                // Testar token na API
+                testTokenAPI(token, tokenType);
+            } else {
+                html += '<p><strong style="color: red;">Nenhum token encontrado!</strong></p>';
+                html += '<button onclick="doLogin()">Fazer Login de Teste</button>';
+            }
+            
+            // Adicionar botões de ação
+            html += '<h2>Ações:</h2>';
+            html += '<button onclick="clearTokens()" style="background: #dc3545; color: white; margin: 5px;">Limpar Tokens</button>';
+            html += '<button onclick="doLogin()" style="background: #007bff; color: white; margin: 5px;">Novo Login</button>';
+            html += '<button onclick="location.reload()" style="background: #28a745; color: white; margin: 5px;">Recarregar</button>';
+            
+            debugDiv.innerHTML = html;
+        }
+        
+        async function testTokenAPI(token, tokenType) {
+            const debugDiv = document.getElementById('debug-info');
+            
+            try {
+                const response = await fetch('http://localhost:8000/auth/me', {
+                    headers: {
+                        'Authorization': `${tokenType || 'Bearer'} ${token}`
+                    }
+                });
+                
+                debugDiv.innerHTML += `<h2>Teste da API:</h2>`;
+                debugDiv.innerHTML += `<p><strong>Status:</strong> ${response.status}</p>`;
+                
+                if (response.ok) {
+                    const userData = await response.json();
+                    debugDiv.innerHTML += `<p><strong style="color: green;">Token válido!</strong></p>`;
+                    debugDiv.innerHTML += `<p><strong>Usuário:</strong> ${userData.nome} (${userData.email})</p>`;
+                } else {
+                    const errorText = await response.text();
+                    debugDiv.innerHTML += `<p><strong style="color: red;">Token inválido!</strong></p>`;
+                    debugDiv.innerHTML += `<p><strong>Erro:</strong> ${errorText}</p>`;
+                    debugDiv.innerHTML += `<p><em>Recomendação: Limpe os tokens e faça novo login</em></p>`;
+                }
+                
+            } catch (error) {
+                debugDiv.innerHTML += `<p><strong style="color: red;">Erro na requisição:</strong> ${error.message}</p>`;
+            }
+        }
+        
+        function clearTokens() {
+            localStorage.removeItem('token');
+            localStorage.removeItem('token_type');
+            sessionStorage.removeItem('token');
+            sessionStorage.removeItem('token_type');
+            
+            alert('Tokens removidos! Recarregando...');
+            location.reload();
+        }
+        
+        async function doLogin() {
+            try {
+                const response = await fetch('http://localhost:8000/auth/login', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        email: 'admin@escola.com',
+                        senha: '123456'
+                    })
+                });
+                
+                if (response.ok) {
+                    const data = await response.json();
+                    localStorage.setItem('token', data.access_token);
+                    localStorage.setItem('token_type', data.token_type);
+                    
+                    alert('Login realizado! Recarregando página...');
+                    location.reload();
+                } else {
+                    const errorText = await response.text();
+                    alert('Erro no login: ' + errorText);
+                }
+                
+            } catch (error) {
+                alert('Erro na requisição: ' + error.message);
+            }
+        }
+        
+        // Executar debug ao carregar
+        debugToken();
+    </script>
+</body>
+</html>

@@ -10,52 +10,89 @@
     <header class="header">
         <div class="header-container">
             <h1>🎓 Gestão Escolar</h1>
-            <div class="search-container">
-                <input type="search" id="busca-aluno" class="search-input" aria-label="Buscar aluno" placeholder="🔍 Buscar aluno por nome ou email">
+            <div class="user-area">
+                <div class="user-info">
+                    <div class="user-avatar" id="user-avatar">
+                        👤
+                    </div>
+                    <div class="user-details">
+                        <span class="user-name" id="user-name">Carregando...</span>
+                        <span class="user-role" id="user-role">Carregando...</span>
+                    </div>
+                    <button class="user-dropdown-btn" id="user-dropdown-btn" aria-label="Menu do usuário">
+                        ▼
+                    </button>
+                </div>
+                <div class="user-dropdown" id="user-dropdown">
+                    <div class="dropdown-item" id="user-profile">
+                        👤 Meu Perfil
+                    </div>
+                    <div class="dropdown-item" id="user-settings">
+                        ⚙️ Configurações
+                    </div>
+                    <div class="dropdown-item theme-toggle" id="theme-toggle">
+                        <span class="theme-icon">🌙</span>
+                        <span class="theme-text">Tema Escuro</span>
+                    </div>
+                    <div class="dropdown-divider"></div>
+                    <div class="dropdown-item logout-btn" id="logout-btn">
+                        🚪 Sair do Sistema
+                    </div>
+                </div>
             </div>
         </div>
     </header>
+    
     <main class="main-content">
-        <aside class="sidebar">
-            <h2>Filtros & Estatísticas</h2>
-            <div class="filters-section">
-                <div class="filter-group">
-                    <label for="filtro-turma" class="filter-label">📚 Turma:</label>
-                    <select id="filtro-turma" class="filter-select" aria-label="Filtrar por turma">
-                        <option value="">Todas as turmas</option>
-                        <!-- Turmas serão preenchidas via JS -->
-                    </select>
+        <div class="content-layout">
+            <aside class="sidebar">
+                <h2>Filtros & Estatísticas</h2>
+                <div class="filters-section">
+                    <div class="filter-group">
+                        <label for="filtro-turma" class="filter-label">📚 Turma:</label>
+                        <select id="filtro-turma" class="filter-select" aria-label="Filtrar por turma">
+                            <option value="">Todas as turmas</option>
+                            <!-- Turmas serão preenchidas via JS -->
+                        </select>
+                    </div>
+                    <div class="filter-group">
+                        <label for="filtro-status" class="filter-label">📊 Status:</label>
+                        <select id="filtro-status" class="filter-select" aria-label="Filtrar por status">
+                            <option value="">Todos os status</option>
+                            <option value="ativo">✅ Ativo</option>
+                            <option value="inativo">❌ Inativo</option>
+                        </select>
+                    </div>
+                    <div class="filter-group">
+                        <label for="filtro-texto" class="filter-label">🔍 Busca rápida:</label>
+                        <input type="text" id="filtro-texto" class="filter-input" aria-label="Filtrar por texto" placeholder="Nome ou email...">
+                    </div>
                 </div>
-                <div class="filter-group">
-                    <label for="filtro-status" class="filter-label">📊 Status:</label>
-                    <select id="filtro-status" class="filter-select" aria-label="Filtrar por status">
-                        <option value="">Todos os status</option>
-                        <option value="ativo">✅ Ativo</option>
-                        <option value="inativo">❌ Inativo</option>
-                    </select>
+                <div class="stats-section">
+                    <h3>Estatísticas</h3>
+                    <div class="stat-item">
+                        <span class="stat-label">Total de alunos:</span>
+                        <span class="stat-value" id="total-alunos">0</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-label">Alunos ativos:</span>
+                        <span class="stat-value" id="alunos-ativos">0</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-label">Total de turmas:</span>
+                        <span class="stat-value" id="total-turmas">0</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-label">Usuários ativos:</span>
+                        <span class="stat-value" id="total-usuarios">0</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-label">Por turma:</span>
+                    </div>
+                    <ul class="stats-list" id="alunos-por-turma">
+                        <!-- Estatísticas por turma via JS -->
+                    </ul>
                 </div>
-                <div class="filter-group">
-                    <label for="filtro-texto" class="filter-label">🔍 Busca rápida:</label>
-                    <input type="text" id="filtro-texto" class="filter-input" aria-label="Filtrar por texto" placeholder="Nome ou email...">
-                </div>
-            </div>
-            <div class="stats-section">
-                <h3>Estatísticas</h3>
-                <div class="stat-item">
-                    <span class="stat-label">Total de alunos:</span>
-                    <span class="stat-value" id="total-alunos">0</span>
-                </div>
-                <div class="stat-item">
-                    <span class="stat-label">Alunos ativos:</span>
-                    <span class="stat-value" id="total-ativos">0</span>
-                </div>
-                <div class="stat-item">
-                    <span class="stat-label">Por turma:</span>
-                </div>
-                <ul class="stats-list" id="alunos-por-turma">
-                    <!-- Estatísticas por turma via JS -->
-                </ul>
-            </div>
         </aside>
         <section class="content-area">
             <nav class="nav-tabs">
@@ -74,9 +111,15 @@
                     <h2 class="section-title">
                         👥 Gerenciar Alunos
                     </h2>
-                    <button class="btn-primary" id="btn-novo-aluno">
-                        ➕ Novo Aluno
-                    </button>
+                    <div class="header-actions">
+                        <input type="search" id="busca-aluno" class="search-input-standalone" aria-label="Buscar aluno" placeholder="Digite o nome do aluno, email ou turma...">
+                        <button class="btn-primary" id="btn-novo-aluno">
+                            ➕ Novo Aluno
+                        </button>
+                    </div>
+                </div>
+                <div class="filter-indicator" id="filter-indicator" style="margin: 10px 0; font-size: 0.9em; color: #666;">
+                    Carregando alunos...
                 </div>
                 <div id="listagem">
                     <table id="tabela-alunos" class="data-table" aria-label="Tabela de alunos">
@@ -98,12 +141,13 @@
                 </div>
             </div>
         </section>
+        </div>
     </main>
     <!-- Modais -->
     <div id="modal-aluno" class="modal">
         <div class="modal-content">
             <div class="modal-header">
-                <h2 class="modal-title">✨ Novo Aluno</h2>
+                <h2 class="modal-title" id="titulo-modal-aluno">✨ Novo Aluno</h2>
                 <button class="btn-close" id="fechar-modal-aluno">✕</button>
             </div>
             <form id="form-aluno" aria-label="Formulário de Aluno">
@@ -117,7 +161,7 @@
                 </div>
                 <div class="form-group">
                     <label for="email" class="form-label">📧 Email</label>
-                    <input type="email" id="email" name="email" class="form-input" pattern="^[\w-.]+@([\w-]+\.)+[\w-]{2,4}$" placeholder="email@exemplo.com">
+                    <input type="email" id="email" name="email" class="form-input" placeholder="email@exemplo.com">
                 </div>
                 <div class="form-group">
                     <label for="status" class="form-label required">📊 Status</label>
@@ -135,7 +179,7 @@
                 </div>
                 <div class="form-actions">
                     <button type="button" class="btn-secondary" id="cancelar-aluno">Cancelar</button>
-                    <button type="submit" class="btn-primary">💾 Salvar Aluno</button>
+                    <button type="submit" class="btn-primary" id="salvar-aluno">💾 Salvar Aluno</button>
                 </div>
             </form>
         </div>
@@ -173,6 +217,7 @@
             </form>
         </div>
     </div>
+
     <script src="script.js"></script>
 </body>
 </html>

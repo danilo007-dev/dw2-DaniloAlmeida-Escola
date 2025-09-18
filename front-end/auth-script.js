@@ -96,14 +96,15 @@ document.addEventListener('DOMContentLoaded', function() {
     // Login
     async function realizarLogin(email, senha, manterLogado = false) {
         try {
-            // Preparar dados para OAuth2 form
-            const formData = new FormData();
-            formData.append('username', email);
-            formData.append('password', senha);
-            
             const response = await fetch(`${API_BASE_URL}/auth/login`, {
                 method: 'POST',
-                body: formData
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    email: email,
+                    senha: senha
+                })
             });
             
             const data = await response.json();
@@ -242,7 +243,7 @@ document.addEventListener('DOMContentLoaded', function() {
             
             const email = document.getElementById('email-login').value.trim();
             const senha = document.getElementById('senha-login').value;
-            const manterLogado = document.getElementById('manter-logado')?.checked || false;
+            const manterLogado = document.getElementById('lembrar-me')?.checked || false;
             
             // Validações
             if (!email || !senha) {
@@ -277,9 +278,9 @@ document.addEventListener('DOMContentLoaded', function() {
                 btnSubmit.setAttribute('data-original-text', btnSubmit.innerHTML);
             }
             
-            const nome = document.getElementById('nome-registro').value.trim();
-            const email = document.getElementById('email-registro').value.trim();
-            const senha = document.getElementById('senha-registro').value;
+            const nome = document.getElementById('nome-register').value.trim();
+            const email = document.getElementById('email-register').value.trim();
+            const senha = document.getElementById('senha-register').value;
             const confirmarSenha = document.getElementById('confirmar-senha').value;
             
             // Validações
