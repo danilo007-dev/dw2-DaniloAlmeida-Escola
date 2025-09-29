@@ -96,48 +96,143 @@
         </aside>
         <section class="content-area">
             <nav class="nav-tabs">
-                <button id="btn-alunos" class="nav-tab active">
+                <button id="btn-alunos" class="nav-tab active" data-tab="section-alunos">
                     👥 Alunos
                 </button>
-                <button id="btn-turmas" class="nav-tab turmas">
+                <button id="btn-turmas" class="nav-tab turmas" data-tab="section-turmas" onclick="
+                    console.log('🖱️ Click direto na tab turmas');
+                    // Remover active de todas as tabs
+                    document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
+                    // Esconder todas as sections
+                    document.querySelectorAll('.content-section').forEach(s => { s.style.display = 'none'; s.classList.add('hidden'); });
+                    // Ativar esta tab
+                    this.classList.add('active');
+                    // Mostrar section de turmas
+                    const turmasSection = document.getElementById('section-turmas');
+                    if (turmasSection) {
+                        turmasSection.style.display = 'block';
+                        turmasSection.classList.remove('hidden');
+                        console.log('✅ Seção de turmas mostrada!');
+                        // Carregar dados das turmas
+                        if (window.schoolSystem && window.schoolSystem.renderTurmasSection) {
+                            window.schoolSystem.renderTurmasSection();
+                        }
+                    } else {
+                        console.log('❌ Seção de turmas não encontrada');
+                    }
+                ">
                     📚 Turmas
                 </button>
-                <button id="btn-relatorios" class="nav-tab relatorios">
+                <button id="btn-relatorios" class="nav-tab relatorios" data-tab="section-relatorios">
                     📊 Relatórios
                 </button>
             </nav>
-            <div class="content-section">
-                <div class="section-header">
-                    <h2 class="section-title">
-                        👥 Gerenciar Alunos
-                    </h2>
-                    <div class="header-actions">
-                        <input type="search" id="busca-aluno" class="search-input-standalone" aria-label="Buscar aluno" placeholder="Digite o nome do aluno, email ou turma...">
-                        <button class="btn-primary" id="btn-novo-aluno">
-                            ➕ Novo Aluno
-                        </button>
+            <div class="content-container">
+                <!-- Seção de Alunos -->
+                <div id="section-alunos" class="content-section">
+                    <div class="section-header">
+                        <h2 class="section-title">
+                            👥 Gerenciar Alunos
+                        </h2>
+                        <div class="header-actions">
+                            <input type="search" id="busca-aluno" class="search-input-standalone" aria-label="Buscar aluno" placeholder="Digite o nome do aluno, email ou turma...">
+                            <button class="btn-primary" id="btn-novo-aluno">
+                                ➕ Novo Aluno
+                            </button>
+                        </div>
+                    </div>
+                    <div class="filter-indicator" id="filter-indicator" style="margin: 10px 0; font-size: 0.9em; color: #666;">
+                        Carregando alunos...
+                    </div>
+                    <div id="listagem">
+                        <table id="tabela-alunos" class="data-table" aria-label="Tabela de alunos">
+                            <caption>Lista de Alunos Cadastrados</caption>
+                            <thead>
+                                <tr>
+                                    <th>👤 Nome</th>
+                                    <th>📅 Data Nasc.</th>
+                                    <th>📧 Email</th>
+                                    <th>📊 Status</th>
+                                    <th>📚 Turma</th>
+                                    <th>⚙️ Ações</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <!-- Linhas de alunos via JS -->
+                            </tbody>
+                        </table>
                     </div>
                 </div>
-                <div class="filter-indicator" id="filter-indicator" style="margin: 10px 0; font-size: 0.9em; color: #666;">
-                    Carregando alunos...
+
+                <!-- Seção de Turmas -->
+                <div id="section-turmas" class="content-section" style="display: none;">
+                    <div class="section-header">
+                        <h2 class="section-title">
+                            📚 Gerenciar Turmas
+                        </h2>
+                        <div class="header-actions">
+                            <input type="search" id="busca-turma" class="search-input-standalone" aria-label="Buscar turma" placeholder="Digite o nome da turma...">
+                            <button class="btn-primary" id="btn-nova-turma">
+                                ➕ Nova Turma
+                            </button>
+                        </div>
+                    </div>
+                    <div id="turmas-stats" class="stats-cards">
+                        <div class="stat-card">
+                            <div class="stat-icon">📚</div>
+                            <div class="stat-content">
+                                <div class="stat-number" id="total-turmas-display">0</div>
+                                <div class="stat-label">Total de Turmas</div>
+                            </div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-icon">👥</div>
+                            <div class="stat-content">
+                                <div class="stat-number" id="total-alunos-turmas">0</div>
+                                <div class="stat-label">Alunos Matriculados</div>
+                            </div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-icon">📊</div>
+                            <div class="stat-content">
+                                <div class="stat-number" id="ocupacao-media">0%</div>
+                                <div class="stat-label">Ocupação Média</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div id="turmas-listagem">
+                        <table id="turmas-table" class="data-table" aria-label="Tabela de turmas">
+                            <caption>Lista de Turmas Cadastradas</caption>
+                            <thead>
+                                <tr>
+                                    <th>📚 Nome</th>
+                                    <th>📝 Descrição</th>
+                                    <th>👥 Capacidade</th>
+                                    <th>📊 Ocupação</th>
+                                    <th>⏰ Período</th>
+                                    <th>📈 Taxa</th>
+                                    <th>⚙️ Ações</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <!-- Linhas de turmas via JS -->
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
-                <div id="listagem">
-                    <table id="tabela-alunos" class="data-table" aria-label="Tabela de alunos">
-                        <caption>Lista de Alunos Cadastrados</caption>
-                        <thead>
-                            <tr>
-                                <th>👤 Nome</th>
-                                <th>📅 Data Nasc.</th>
-                                <th>📧 Email</th>
-                                <th>📊 Status</th>
-                                <th>📚 Turma</th>
-                                <th>⚙️ Ações</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <!-- Linhas de alunos via JS -->
-                        </tbody>
-                    </table>
+
+                <!-- Seção de Relatórios -->
+                <div id="section-relatorios" class="content-section" style="display: none;">
+                    <div class="section-header">
+                        <h2 class="section-title">
+                            📊 Relatórios e Estatísticas
+                        </h2>
+                    </div>
+                    <div class="reports-coming-soon">
+                        <div class="coming-soon-icon">🚧</div>
+                        <h3>Em Desenvolvimento</h3>
+                        <p>A seção de relatórios será implementada em breve!</p>
+                    </div>
                 </div>
             </div>
         </section>
@@ -213,6 +308,50 @@
                 <div class="form-actions">
                     <button type="button" class="btn-secondary" id="cancelar-matricula">Cancelar</button>
                     <button type="submit" class="btn-primary">📝 Confirmar Matrícula</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Modal de Turma -->
+    <div id="modal-turma" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 class="modal-title" id="titulo-modal-turma">📚 Nova Turma</h2>
+                <button class="btn-close" id="fechar-modal-turma">✕</button>
+            </div>
+            <form id="form-turma" aria-label="Formulário de Turma">
+                <div class="form-group">
+                    <label for="turma-nome" class="form-label required">📚 Nome da Turma</label>
+                    <input type="text" id="turma-nome" name="nome" class="form-input" required minlength="2" maxlength="50" aria-required="true" placeholder="Ex: 1º Ano A, 7º Ano B">
+                </div>
+                <div class="form-group">
+                    <label for="turma-descricao" class="form-label">📝 Descrição</label>
+                    <textarea id="turma-descricao" name="descricao" class="form-textarea" maxlength="200" placeholder="Descrição opcional da turma..."></textarea>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="turma-capacidade" class="form-label required">👥 Capacidade</label>
+                        <input type="number" id="turma-capacidade" name="capacidade" class="form-input" required min="5" max="50" aria-required="true" placeholder="30">
+                    </div>
+                    <div class="form-group">
+                        <label for="turma-ano-letivo" class="form-label required">📅 Ano Letivo</label>
+                        <input type="number" id="turma-ano-letivo" name="ano_letivo" class="form-input" required min="2020" max="2030" aria-required="true" placeholder="2025">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="turma-periodo" class="form-label required">⏰ Período</label>
+                    <select id="turma-periodo" name="periodo" class="form-select" required aria-required="true">
+                        <option value="">Selecione o período</option>
+                        <option value="matutino">🌅 Matutino</option>
+                        <option value="vespertino">🌤️ Vespertino</option>
+                        <option value="noturno">🌙 Noturno</option>
+                        <option value="integral">⏰ Integral</option>
+                    </select>
+                </div>
+                <div class="form-actions">
+                    <button type="button" class="btn-secondary" id="cancelar-turma">Cancelar</button>
+                    <button type="submit" class="btn-primary" id="salvar-turma">💾 Salvar Turma</button>
                 </div>
             </form>
         </div>

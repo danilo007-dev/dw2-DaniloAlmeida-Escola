@@ -66,8 +66,8 @@ document.addEventListener('DOMContentLoaded', function() {
     const logoutBtn = document.getElementById('logout-btn');
     
     // Tabs
-    const tabs = document.querySelectorAll('.tab-button');
-    const tabContents = document.querySelectorAll('.tab-content');
+    const tabs = document.querySelectorAll('.nav-tab');
+    const tabContents = document.querySelectorAll('.content-section');
     
     // Inicialização
     init();
@@ -108,8 +108,14 @@ document.addEventListener('DOMContentLoaded', function() {
         console.log('✅ Monitor configurado');
         
         // Mostrar tab inicial
-        console.log('🏠 Mostrando dashboard...');
-        showTab('dashboard');
+        console.log('🏠 Mostrando seção de alunos...');
+        showTab('section-alunos');
+        
+        // Adicionar evento de teste para debug
+        window.testShowTab = function(tabName) {
+            console.log('🧪 Teste manual showTab:', tabName);
+            showTab(tabName);
+        };
         
         console.log('✅ Sistema inicializado com sucesso!');
     }
@@ -371,23 +377,105 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
     
+    function renderTurmasSection() {
+        console.log('🎨 Renderizando seção de turmas...');
+        renderTurmasStats();
+        renderTurmasTable();
+    }
+
+    function renderTurmasStats() {
+        if (!turmasData || turmasData.length === 0) return;
+        
+        const totalTurmas = turmasData.length;
+        const totalAlunosMatriculados = turmasData.reduce((sum, turma) => sum + (turma.total_alunos || 0), 0);
+        const capacidadeTotal = turmasData.reduce((sum, turma) => sum + turma.capacidade, 0);
+        const ocupacaoMedia = capacidadeTotal > 0 ? Math.round((totalAlunosMatriculados / capacidadeTotal) * 100) : 0;
+        
+        // Atualizar cards de estatísticas
+        const totalTurmasEl = document.getElementById('total-turmas-display');
+        const totalAlunosEl = document.getElementById('total-alunos-turmas');
+        const ocupacaoMediaEl = document.getElementById('ocupacao-media');
+        
+        if (totalTurmasEl) totalTurmasEl.textContent = totalTurmas;
+        if (totalAlunosEl) totalAlunosEl.textContent = totalAlunosMatriculados;
+        if (ocupacaoMediaEl) ocupacaoMediaEl.textContent = `${ocupacaoMedia}%`;
+    }
+
     function renderTurmasTable() {
         const tbody = document.querySelector('#turmas-table tbody');
         if (!tbody || !turmasData) return;
         
-        tbody.innerHTML = turmasData.map(turma => `
-            <tr>
-                <td>${turma.nome}</td>
-                <td>${turma.descricao}</td>
-                <td>${turma.capacidade}</td>
-                <td>${turma.total_alunos || 0}</td>
-                <td>${turma.periodo}</td>
-                <td>
-                    <button class="btn-action edit-turma" data-id="${turma.id}">✏️</button>
-                    <button class="btn-action delete-turma" data-id="${turma.id}">🗑️</button>
-                </td>
-            </tr>
-        `).join('');
+        tbody.innerHTML = turmasData.map(turma => {
+            const totalAlunos = turma.total_alunos || 0;
+            const capacidade = turma.capacidade;
+            const ocupacao = capacidade > 0 ? Math.round((totalAlunos / capacidade) * 100) : 0;
+            const ocupacaoClass = getOcupacaoClass(ocupacao);
+            const periodoIcon = getPeriodoIcon(turma.periodo);
+            
+            return `
+                <tr>
+                    <td>
+                        <div class="turma-info">
+                            <strong>${turma.nome}</strong>
+                            <small>${turma.ano_letivo}</small>
+                        </div>
+                    </td>
+                    <td>${turma.descricao || '-'}</td>
+                    <td class="text-center">${capacidade}</td>
+                    <td>
+                        <div class="ocupacao-info">
+                            <div class="ocupacao-bar">
+                                <div class="ocupacao-fill ${ocupacaoClass}" style="width: ${ocupacao}%"></div>
+                            </div>
+                            <span class="ocupacao-text ${ocupacaoClass}">${totalAlunos}/${capacidade}</span>
+                        </div>
+                    </td>
+                    <td>
+                        <span class="periodo-badge">
+                            ${periodoIcon} ${formatPeriodo(turma.periodo)}
+                        </span>
+                    </td>
+                    <td>
+                        <div class="taxa-ocupacao ${ocupacaoClass}">
+                            ${ocupacao}%
+                        </div>
+                    </td>
+                    <td>
+                        <div class="actions-group">
+                            <button class="btn-action edit-turma" data-id="${turma.id}" title="Editar Turma">✏️</button>
+                            <button class="btn-action delete-turma" data-id="${turma.id}" title="Excluir Turma">🗑️</button>
+                        </div>
+                    </td>
+                </tr>
+            `;
+        }).join('');
+    }
+
+    function getOcupacaoClass(ocupacao) {
+        if (ocupacao >= 100) return 'lotada';
+        if (ocupacao >= 80) return 'alta';
+        if (ocupacao >= 50) return 'media';
+        return 'baixa';
+    }
+
+    function getPeriodoIcon(periodo) {
+        const icons = {
+            'matutino': '🌅',
+            'vespertino': '🌤️',
+            'noturno': '🌙',
+            'integral': '⏰'
+        };
+        return icons[periodo] || '📅';
+    }
+
+    function formatPeriodo(periodo) {
+        const formatted = {
+            'matutino': 'Matutino',
+            'vespertino': 'Vespertino', 
+            'noturno': 'Noturno',
+            'integral': 'Integral'
+        };
+        return formatted[periodo] || periodo;
     }
     
     function renderAlunosTable() {
@@ -451,9 +539,17 @@ document.addEventListener('DOMContentLoaded', function() {
     
     function setupEventListeners() {
         // Tabs
-        tabs.forEach(tab => {
+        console.log('🎯 Configurando event listeners para tabs...');
+        console.log('📊 Número de tabs encontradas:', tabs.length);
+        
+        tabs.forEach((tab, index) => {
+            const tabName = tab.getAttribute('data-tab');
+            const tabText = tab.textContent.trim();
+            console.log(`🔗 Tab ${index + 1}: "${tabText}" -> ${tabName}`);
+            
             tab.addEventListener('click', () => {
                 const targetTab = tab.getAttribute('data-tab');
+                console.log('🖱️ Click na tab:', tabText, '-> Alvo:', targetTab);
                 showTab(targetTab);
             });
         });
@@ -509,8 +605,23 @@ document.addEventListener('DOMContentLoaded', function() {
             btnNovoAluno.addEventListener('click', openModalAluno);
         }
         
+        // Botão Nova Turma
+        const btnNovaTurma = document.getElementById('btn-nova-turma');
+        if (btnNovaTurma) {
+            btnNovaTurma.addEventListener('click', openModalTurma);
+        }
+        
+        // Busca de Turmas
+        const buscaTurma = document.getElementById('busca-turma');
+        if (buscaTurma) {
+            buscaTurma.addEventListener('input', filtrarTurmas);
+        }
+        
         // Modal Aluno
         setupModalAluno();
+        
+        // Modal Turma
+        setupModalTurma();
         
         // Event listeners para ações da tabela
         document.addEventListener('click', (e) => {
@@ -520,6 +631,12 @@ document.addEventListener('DOMContentLoaded', function() {
             } else if (e.target.classList.contains('delete-aluno')) {
                 const alunoId = e.target.getAttribute('data-id');
                 excluirAluno(alunoId);
+            } else if (e.target.classList.contains('edit-turma')) {
+                const turmaId = e.target.getAttribute('data-id');
+                editarTurma(turmaId);
+            } else if (e.target.classList.contains('delete-turma')) {
+                const turmaId = e.target.getAttribute('data-id');
+                excluirTurma(turmaId);
             }
         });
         
@@ -990,16 +1107,50 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     function showTab(tabName) {
-        // Remove active from all tabs and contents
-        tabs.forEach(tab => tab.classList.remove('active'));
-        tabContents.forEach(content => content.classList.remove('active'));
+        console.log('🚀 showTab chamada com:', tabName);
         
-        // Add active to selected tab and content
+        // Remove active from all tabs and hide all content sections  
+        console.log('🔄 Removendo active de todas as tabs...');
+        tabs.forEach(tab => tab.classList.remove('active'));
+        
+        console.log('👁️ Escondendo todas as sections...');
+        console.log('📊 Número de content sections:', tabContents.length);
+        tabContents.forEach((content, index) => {
+            console.log(`   Section ${index + 1}: ${content.id} -> escondendo`);
+            content.style.display = 'none';
+            content.classList.add('hidden');
+        });
+        
+        // Add active to selected tab and show content
         const selectedTab = document.querySelector(`[data-tab="${tabName}"]`);
         const selectedContent = document.getElementById(tabName);
         
-        if (selectedTab) selectedTab.classList.add('active');
-        if (selectedContent) selectedContent.classList.add('active');
+        console.log('🎯 Tab selecionada:', selectedTab);
+        console.log('📄 Content selecionado:', selectedContent);
+        
+        if (selectedTab) {
+            selectedTab.classList.add('active');
+            console.log('✅ Tab marcada como active');
+        } else {
+            console.log('❌ Tab não encontrada!');
+        }
+        
+        if (selectedContent) {
+            selectedContent.classList.remove('hidden');
+            selectedContent.style.display = 'block';
+            console.log('✅ Content exibido');
+            
+            // Carregar dados específicos da seção
+            if (tabName === 'section-turmas') {
+                console.log('🏫 Renderizando seção de turmas...');
+                renderTurmasSection();
+            } else if (tabName === 'section-alunos') {
+                console.log('👥 Renderizando seção de alunos...');
+                renderAlunosTable();
+            }
+        } else {
+            console.log('❌ Content não encontrado!');
+        }
     }
     
     function logout() {
@@ -1111,10 +1262,236 @@ document.addEventListener('DOMContentLoaded', function() {
         loadUsuarios,
         loadDashboardStats,
         showToast,
+        renderTurmasSection,
         authHeader: () => window.authHeader,
         currentUser: () => currentUser,
         API_BASE_URL
     };
     
+    // ================================
+    // GERENCIAMENTO DE TURMAS
+    // ================================
+
+    function filtrarTurmas() {
+        const termo = document.getElementById('busca-turma').value.toLowerCase();
+        
+        if (!termo) {
+            renderTurmasTable(); // Mostrar todas as turmas
+            return;
+        }
+        
+        const turmasFiltradas = turmasData.filter(turma => 
+            turma.nome.toLowerCase().includes(termo) ||
+            (turma.descricao && turma.descricao.toLowerCase().includes(termo)) ||
+            turma.periodo.toLowerCase().includes(termo)
+        );
+        
+        // Renderizar tabela com turmas filtradas
+        const tbody = document.querySelector('#turmas-table tbody');
+        if (!tbody) return;
+        
+        tbody.innerHTML = turmasFiltradas.map(turma => {
+            const totalAlunos = turma.total_alunos || 0;
+            const capacidade = turma.capacidade;
+            const ocupacao = capacidade > 0 ? Math.round((totalAlunos / capacidade) * 100) : 0;
+            const ocupacaoClass = getOcupacaoClass(ocupacao);
+            const periodoIcon = getPeriodoIcon(turma.periodo);
+            
+            return `
+                <tr>
+                    <td>
+                        <div class="turma-info">
+                            <strong>${turma.nome}</strong>
+                            <small>${turma.ano_letivo}</small>
+                        </div>
+                    </td>
+                    <td>${turma.descricao || '-'}</td>
+                    <td class="text-center">${capacidade}</td>
+                    <td>
+                        <div class="ocupacao-info">
+                            <div class="ocupacao-bar">
+                                <div class="ocupacao-fill ${ocupacaoClass}" style="width: ${ocupacao}%"></div>
+                            </div>
+                            <span class="ocupacao-text ${ocupacaoClass}">${totalAlunos}/${capacidade}</span>
+                        </div>
+                    </td>
+                    <td>
+                        <span class="periodo-badge">
+                            ${periodoIcon} ${formatPeriodo(turma.periodo)}
+                        </span>
+                    </td>
+                    <td>
+                        <div class="taxa-ocupacao ${ocupacaoClass}">
+                            ${ocupacao}%
+                        </div>
+                    </td>
+                    <td>
+                        <div class="actions-group">
+                            <button class="btn-action edit-turma" data-id="${turma.id}" title="Editar Turma">✏️</button>
+                            <button class="btn-action delete-turma" data-id="${turma.id}" title="Excluir Turma">🗑️</button>
+                        </div>
+                    </td>
+                </tr>
+            `;
+        }).join('');
+    }
+
+    function openModalTurma(turmaId = null) {
+        const modal = document.getElementById('modal-turma');
+        const titulo = document.getElementById('titulo-modal-turma');
+        const form = document.getElementById('form-turma');
+        
+        if (turmaId) {
+            titulo.textContent = '✏️ Editar Turma';
+            const turma = turmasData.find(t => t.id == turmaId);
+            if (turma) {
+                form.elements['nome'].value = turma.nome;
+                form.elements['descricao'].value = turma.descricao || '';
+                form.elements['capacidade'].value = turma.capacidade;
+                form.elements['ano_letivo'].value = turma.ano_letivo;
+                form.elements['periodo'].value = turma.periodo;
+                form.dataset.turmaId = turmaId;
+            }
+        } else {
+            titulo.textContent = '📚 Nova Turma';
+            form.reset();
+            form.elements['ano_letivo'].value = new Date().getFullYear(); // Ano atual por padrão
+            form.removeAttribute('data-turma-id');
+        }
+        
+        modal.style.display = 'flex';
+        setTimeout(() => modal.classList.add('active'), 10);
+    }
+
+    function closeModalTurma() {
+        const modal = document.getElementById('modal-turma');
+        modal.classList.remove('active');
+        setTimeout(() => {
+            modal.style.display = 'none';
+            document.getElementById('form-turma').reset();
+        }, 300);
+    }
+
+    function setupModalTurma() {
+        const modal = document.getElementById('modal-turma');
+        const fecharModal = document.getElementById('fechar-modal-turma');
+        const cancelarBtn = document.getElementById('cancelar-turma');
+        const form = document.getElementById('form-turma');
+        
+        if (fecharModal) {
+            fecharModal.addEventListener('click', closeModalTurma);
+        }
+        
+        if (cancelarBtn) {
+            cancelarBtn.addEventListener('click', closeModalTurma);
+        }
+        
+        // Fechar modal ao clicar fora
+        if (modal) {
+            modal.addEventListener('click', (e) => {
+                if (e.target === modal) {
+                    closeModalTurma();
+                }
+            });
+        }
+        
+        // ESC para fechar
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape' && modal?.classList.contains('active')) {
+                closeModalTurma();
+            }
+        });
+        
+        // Envio do formulário
+        if (form) {
+            form.addEventListener('submit', handleSubmitTurma);
+        }
+    }
+
+    async function handleSubmitTurma(e) {
+        e.preventDefault();
+        
+        const form = e.target;
+        const formData = new FormData(form);
+        const turmaId = form.dataset.turmaId;
+        const isEdit = !!turmaId;
+        
+        const turmaData = {
+            nome: formData.get('nome'),
+            descricao: formData.get('descricao') || null,
+            capacidade: parseInt(formData.get('capacidade')),
+            ano_letivo: parseInt(formData.get('ano_letivo')),
+            periodo: formData.get('periodo')
+        };
+        
+        const submitBtn = form.querySelector('button[type="submit"]');
+        const originalText = submitBtn.textContent;
+        
+        try {
+            submitBtn.textContent = '💾 Salvando...';
+            submitBtn.disabled = true;
+            
+            const url = isEdit ? `${API_BASE_URL}/turmas/${turmaId}` : `${API_BASE_URL}/turmas`;
+            const method = isEdit ? 'PUT' : 'POST';
+            
+            const response = await fetch(url, {
+                method,
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${authToken}`
+                },
+                body: JSON.stringify(turmaData)
+            });
+            
+            if (response.ok) {
+                const action = isEdit ? 'atualizada' : 'criada';
+                showToast(`Turma ${action} com sucesso!`, 'success');
+                closeModalTurma();
+                await loadTurmas(); // Recarregar dados
+            } else {
+                const error = await response.json();
+                throw new Error(error.detail || `Erro ao ${isEdit ? 'atualizar' : 'criar'} turma`);
+            }
+        } catch (error) {
+            console.error('Erro ao salvar turma:', error);
+            showToast(error.message, 'error');
+        } finally {
+            submitBtn.textContent = originalText;
+            submitBtn.disabled = false;
+        }
+    }
+
+    function editarTurma(turmaId) {
+        openModalTurma(turmaId);
+    }
+
+    async function excluirTurma(turmaId) {
+        const turma = turmasData.find(t => t.id == turmaId);
+        if (!turma) return;
+        
+        const confirmDelete = confirm(`Tem certeza que deseja excluir a turma "${turma.nome}"?\n\nEsta ação não pode ser desfeita.`);
+        if (!confirmDelete) return;
+        
+        try {
+            const response = await fetch(`${API_BASE_URL}/turmas/${turmaId}`, {
+                method: 'DELETE',
+                headers: {
+                    'Authorization': `Bearer ${authToken}`
+                }
+            });
+            
+            if (response.ok) {
+                showToast('Turma excluída com sucesso!', 'success');
+                await loadTurmas(); // Recarregar dados
+            } else {
+                const error = await response.json();
+                throw new Error(error.detail || 'Erro ao excluir turma');
+            }
+        } catch (error) {
+            console.error('Erro ao excluir turma:', error);
+            showToast(error.message, 'error');
+        }
+    }
+
     console.log('🎯 Sistema configurado e pronto para uso!');
 });

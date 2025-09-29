@@ -212,7 +212,7 @@
     border-color: var(--gray-200);
 }
 
-[data-theme="dark"] .content-section {
+[data-theme="dark"] .content-container {
     background: var(--gray-100);
 }
 
@@ -661,9 +661,13 @@ body {
     color: white;
 }
 
-/* Content section */
-.content-section {
+/* Content container and sections */
+.content-container {
     padding: var(--spacing-8);
+}
+
+.content-section {
+    padding: 0;
 }
 
 .section-header {
@@ -1475,4 +1479,258 @@ html {
     height: 1px;
     background: var(--gray-200);
     margin: var(--spacing-2) 0;
+}
+
+/* ================================
+   SEÇÃO DE TURMAS
+   ================================ */
+
+.stats-cards {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: var(--spacing-4);
+    margin-bottom: var(--spacing-6);
+}
+
+.stat-card {
+    background: white;
+    border: 1px solid var(--gray-200);
+    border-radius: var(--border-radius-lg);
+    padding: var(--spacing-5);
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-4);
+    transition: all var(--transition-normal);
+    box-shadow: var(--shadow-sm);
+}
+
+.stat-card:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-md);
+    border-color: var(--primary-blue);
+}
+
+.stat-icon {
+    font-size: 2rem;
+    width: 60px;
+    height: 60px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--gray-50);
+    border-radius: var(--border-radius-full);
+    flex-shrink: 0;
+}
+
+.stat-content {
+    flex: 1;
+}
+
+.stat-number {
+    font-size: var(--font-size-2xl);
+    font-weight: 700;
+    color: var(--primary-blue);
+    line-height: 1;
+    margin-bottom: var(--spacing-1);
+}
+
+.stat-card .stat-label {
+    font-size: var(--font-size-sm);
+    color: var(--gray-600);
+    font-weight: 500;
+}
+
+/* Ocupação da turma */
+.ocupacao-info {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-2);
+}
+
+.ocupacao-bar {
+    width: 80px;
+    height: 8px;
+    background: var(--gray-200);
+    border-radius: var(--border-radius-full);
+    overflow: hidden;
+}
+
+.ocupacao-fill {
+    height: 100%;
+    border-radius: var(--border-radius-full);
+    transition: all var(--transition-normal);
+}
+
+.ocupacao-fill.baixa {
+    background: var(--success-green);
+}
+
+.ocupacao-fill.media {
+    background: var(--warning-orange);
+}
+
+.ocupacao-fill.alta {
+    background: var(--danger-red);
+}
+
+.ocupacao-text {
+    font-size: var(--font-size-sm);
+    font-weight: 600;
+    min-width: 45px;
+}
+
+.ocupacao-text.baixa {
+    color: var(--success-green);
+}
+
+.ocupacao-text.media {
+    color: var(--warning-orange);
+}
+
+.ocupacao-text.alta {
+    color: var(--danger-red);
+}
+
+/* Taxa de ocupação */
+.taxa-ocupacao {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--spacing-2);
+    padding: var(--spacing-1) var(--spacing-3);
+    border-radius: var(--border-radius);
+    font-size: var(--font-size-sm);
+    font-weight: 600;
+}
+
+.taxa-ocupacao.baixa {
+    background: rgba(5, 150, 105, 0.1);
+    color: var(--success-green);
+}
+
+.taxa-ocupacao.media {
+    background: rgba(234, 88, 12, 0.1);
+    color: var(--warning-orange);
+}
+
+.taxa-ocupacao.alta {
+    background: rgba(220, 38, 38, 0.1);
+    color: var(--danger-red);
+}
+
+.taxa-ocupacao.lotada {
+    background: rgba(120, 53, 15, 0.1);
+    color: #78350f;
+}
+
+/* Formulário de turma */
+.form-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: var(--spacing-4);
+}
+
+.form-textarea {
+    min-height: 80px;
+    resize: vertical;
+    font-family: var(--font-family);
+}
+
+/* Relatórios em desenvolvimento */
+.reports-coming-soon {
+    text-align: center;
+    padding: var(--spacing-12) var(--spacing-6);
+    color: var(--gray-500);
+}
+
+.coming-soon-icon {
+    font-size: 4rem;
+    margin-bottom: var(--spacing-4);
+}
+
+.reports-coming-soon h3 {
+    font-size: var(--font-size-2xl);
+    margin-bottom: var(--spacing-3);
+    color: var(--gray-700);
+}
+
+.reports-coming-soon p {
+    font-size: var(--font-size-lg);
+    max-width: 400px;
+    margin: 0 auto;
+}
+
+/* Informações da turma */
+.turma-info {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-1);
+}
+
+.turma-info strong {
+    font-weight: 600;
+    color: var(--gray-900);
+}
+
+.turma-info small {
+    color: var(--gray-500);
+    font-size: var(--font-size-xs);
+}
+
+.periodo-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--spacing-2);
+    padding: var(--spacing-2) var(--spacing-3);
+    background: var(--gray-100);
+    border-radius: var(--border-radius);
+    font-size: var(--font-size-sm);
+    font-weight: 500;
+    color: var(--gray-700);
+}
+
+.actions-group {
+    display: flex;
+    gap: var(--spacing-2);
+}
+
+.text-center {
+    text-align: center;
+}
+
+/* Responsividade para cards de estatísticas */
+@media (max-width: 768px) {
+    .stats-cards {
+        grid-template-columns: 1fr;
+    }
+    
+    .form-row {
+        grid-template-columns: 1fr;
+    }
+    
+    .stat-card {
+        padding: var(--spacing-4);
+    }
+    
+    .stat-icon {
+        width: 50px;
+        height: 50px;
+        font-size: 1.5rem;
+    }
+    
+    .stat-number {
+        font-size: var(--font-size-xl);
+    }
+    
+    .ocupacao-info {
+        flex-direction: column;
+        gap: var(--spacing-1);
+    }
+    
+    .ocupacao-bar {
+        width: 100%;
+    }
+    
+    .actions-group {
+        flex-direction: column;
+    }
 }
